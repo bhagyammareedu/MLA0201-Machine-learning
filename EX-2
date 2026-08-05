@@ -1,0 +1,70 @@
+
+import pandas as pd
+
+# -------------------------------
+# Create the training dataset
+# -------------------------------
+dataset = {
+    "Sky": ["Sunny", "Sunny", "Rainy", "Sunny"],
+    "AirTemp": ["Warm", "Warm", "Cold", "Warm"],
+    "Humidity": ["Normal", "High", "High", "High"],
+    "Wind": ["Strong", "Strong", "Strong", "Strong"],
+    "Water": ["Warm", "Warm", "Warm", "Cool"],
+    "Forecast": ["Same", "Same", "Change", "Change"],
+    "EnjoySport": ["Yes", "Yes", "No", "Yes"]
+}
+
+# Convert to DataFrame
+df = pd.DataFrame(dataset)
+
+# Save as CSV
+df.to_csv("training_data.csv", index=False)
+
+# -------------------------------
+# Read the CSV file
+# -------------------------------
+data = pd.read_csv("training_data.csv")
+
+print("Training Data:\n")
+print(data)
+
+# -------------------------------
+# Candidate Elimination Algorithm
+# -------------------------------
+concepts = data.iloc[:, :-1].values
+target = data.iloc[:, -1].values
+
+specific = concepts[0].copy()
+
+general = [["?" for i in range(len(specific))]
+           for j in range(len(specific))]
+
+for i, h in enumerate(concepts):
+
+    if target[i] == "Yes":
+
+        for x in range(len(specific)):
+            if h[x] != specific[x]:
+                specific[x] = "?"
+                general[x][x] = "?"
+
+    elif target[i] == "No":
+
+        for x in range(len(specific)):
+            if h[x] != specific[x]:
+                general[x][x] = specific[x]
+            else:
+                general[x][x] = "?"
+
+# Remove duplicate rows
+general = [g for g in general if g != ["?"] * len(specific)]
+
+# -------------------------------
+# Output
+# -------------------------------
+print("\nMost Specific Hypothesis (S):")
+print(specific)
+
+print("\nGeneral Hypothesis (G):")
+for g in general:
+    print(g)
